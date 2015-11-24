@@ -14,8 +14,8 @@ uint16_t resolution;
 unsigned int j;
 
 int player[6] = {100,1200,0,0,0,0}; //Global array holding player health, ammo, kills, deaths, and team 1 and 2 scores -- respectively
-int stat = 0; //used to determine which stats to show
-int check = 0; //used to check if player wants to see different stats. Will clear screen if stat != check
+volatile int stat = 0; //used to determine which stats to show
+volatile int check = 0; //used to check if player wants to see different stats. Will clear screen if stat != check
 char ReceivedByte;
 int times;
 
@@ -33,16 +33,6 @@ void lcd_init() //Initializes LCD
 	//Display On, Cursor Off, Blink Off Change to 0x0F if cursor is desired
 	lcd_command(0x01);
 	//Clear Screen, Cursor Home
-}
-
-void writeToLCD(char* str)	//prints a string to the LCD through LCD_CHAR
-{
-	do
-	{
-		char toLCD = *str;
-		str++;
-		lcd_char(toLCD);
-	} while(*(str) != '\0');
 }
 
 void lcd_command(char cmd) //Sends commands to LCD
@@ -526,13 +516,11 @@ ISR(USART0_RX_vect) //ISR that fires when Xbee receives data
 	}else if(ReceivedByte == '6'){//Respawn signal
 		_delay_ms(50000);
 		player[0] = 100;
-	return;
-}
-	
-	UDR0 = ReceivedByte; // Echo back the received byte back to the computer
+		return;
+	}
 
 	return;
-	}
+}
 
 int main (void)
 {
